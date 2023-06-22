@@ -11,7 +11,7 @@ const MainBody = (puzzleObject) => {
     const [avgRating, setAvgRating] = useState("Loading");
     useEffect(() => {
         // const puzzleDashboard = puzzleObject.puzzleDashboard;
-        console.log(puzzleObject.puzzleDashboard);
+        //console.log(puzzleObject.puzzleDashboard);
         if (puzzleObject.puzzleDashboard) {
             setTotalPlayed(puzzleObject.puzzleDashboard.global.nb);
             setTotalWins(parseInt(puzzleObject.puzzleDashboard.global.firstWins) + parseInt(puzzleObject.puzzleDashboard.global.replayWins));
@@ -82,7 +82,7 @@ const MainBody = (puzzleObject) => {
                         </section>
                         <ChessboardComponent />
                         <div className="flex flex-row md:flex-row md:mr-0 md:ml-auto mx-auto items-center flex-shrink-0 space-x-4 mt-2">
-                            <button class="inline-flex items-center focus:outline-none text-white bg-indigo-500 border-0 hover:bg-indigo-600 rounded text-lg">
+                            <button className="inline-flex items-center focus:outline-none text-white bg-indigo-500 border-0 hover:bg-indigo-600 rounded text-lg">
                                 <span className="flex items-start flex-col leading-none px-2">
                                     <span className="text-lg mb-1">Next Puzzle </span>
                                     </span>
