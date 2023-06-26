@@ -7,102 +7,24 @@ import { useRouter } from 'next/navigation';
 // import { SignIn } from 'next-auth/client';
 
 export default function Login() {
-    const emailRef = useRef();
-    const passwordRef = useRef();
-    //     const [email, setEmail] = useState('');
-    //   const [password, setPassword] = useState('');
-    const router = useRouter();
+    const emailRef = useRef('');
+    const passwordRef = useRef('');
+    
     const [error, setError] = useState('');
 
-
-    //const [session, loading] = useSession();
-
-    const handleManualLogin = async (e) => {
-        e.preventDefault();
-        const email = emailRef.current.value;
-        const password = passwordRef.current.value;
-        // const { emailInput, passwordInput } = {email.current, password.current};
-        try {
-            const result = await signIn('Credentials', {
-                // username: email,
-                // password: password,
-                redirect: false,
-                email,
-                password,
-                // redirect: false,
-                // callbackUrl: "/"
-            });
-            // Authentication successful, user will be redirected automatically
-            console.log("User: ", signIn.user);
-
-            if (!result.error) {
-                router.push('/')
-            }
-            else {
-                setError('Invalid email or password');
-            }
-        }
-        catch {
-            console.error("Sign in failed", error)
-        }
-    };
+    
+    const onSubmit = async () => {
+        const result = await signIn("credentials", {
+          username: emailRef.current,
+          password: passwordRef.current,
+          redirect: true,
+          callbackUrl: "http://localhost:3000/",
+        });
+      };
+    
 
 
-    //   const handleManualLogin = async (e) => {
-    //     e.preventDefault();
-
-    //     const response = await fetch('/api/login', {
-    //         method: 'POST',
-    //         header: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({email, password }),
-    //     });
-    //     console.log(response);
-    //     if (response.ok) {
-    //         //handle signup
-    //         console.log('SignUp Successful');
-    //     }
-    //     else {
-    //         //Handle Error
-    //         console.error('signup failed');
-    //     }
-    //   };
-
-    //   const handleGoogleLogin = () => {
-    //     // Call the signIn function with the Google provider
-    //     signIn('google');
-    //   };
-
-    //   if (loading) {
-    //     // Render loading state if authentication is in progress
-    //     return <p>Loading...</p>;
-    //   }
-
-    //   if (session) {
-    //     // Redirect to dashboard if user is already logged in
-    //     return <p>Redirecting to dashboard...</p>;
-    //   }
-
-
-
-
-    const handleEmailChange = (event) => {
-        setEmail(event.target.value);
-        // email.current = event.target.value;
-    };
-
-    const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
-        // password.current = event.target.value;
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // Handle login logic here, e.g., call an API endpoint to authenticate the user
-        console.log('Login with:', email, password);
-    };
-
+    
     return (
         <>
             <section className="text-gray-600 body-font">
@@ -121,7 +43,7 @@ export default function Login() {
                             <div>
                                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
                             </div>
-                            <form className="mt-8 space-y-6" onSubmit={handleManualLogin}>
+                            <div className="mt-8 space-y-6" >
                                 <input type="hidden" name="remember" value="true" />
                                 <div className="rounded-md shadow-sm -space-y-px">
                                     {error && <p>{error}</p>}
@@ -138,9 +60,7 @@ export default function Login() {
                                             required
                                             className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                             placeholder="Email address"
-                                            // onChange={handleEmailChange}
-                                            ref={emailRef}
-                                        />
+                                            onChange={(e) => (emailRef.current = e.target.value)}                                        />
                                     </div>
                                     <div>
                                         <label htmlFor="password" className="sr-only">
@@ -154,8 +74,7 @@ export default function Login() {
                                             required
                                             className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                             placeholder="Password"
-                                            // onChange={handlePasswordChange}
-                                            ref={passwordRef}
+                                            onChange={(e) => (passwordRef.current = e.target.value)}
                                         />
                                     </div>
                                 </div>
@@ -182,6 +101,7 @@ export default function Login() {
 
                                 <div>
                                     <button
+                                        onClick={onSubmit}
                                         type="submit"
                                         className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
@@ -203,13 +123,12 @@ export default function Login() {
                                         Sign in
                                     </button>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* <SignIn provider="credentials" /> */}
         </>
     );
 }

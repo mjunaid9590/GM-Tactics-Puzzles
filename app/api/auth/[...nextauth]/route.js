@@ -1,81 +1,51 @@
 import NextAuth from 'next-auth';
-import Providers from 'next-auth/providers';
+import CredentialsProvider from "next-auth/providers/credentials";
 
-const options = {
+const handler = NextAuth({
   providers: [
-    Providers.Credentials({
+    CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        password: { label: "Password", type: "password" },
       },
-      authorize: async (credentials) => {
-        // Validate credentials against your database or any other authentication logic
-        const { email, password } = credentials;
-        user = true;
-        if (user) {
-          // Return object with `id`, `name`, and any other fields you need in the session
-          return Promise.resolve({ id: 1, name: 'John Doe', email });
-        } else {
-          return Promise.resolve(null); // Return null if login failed
+      async authorize(credentials) {
+        console.log("Authorizing")
+
+        const user = {
+          username: credentials.username,
+          password: credentials.password,
         }
-      }
-    })
+        // const user = await res.json();
+        console.log(user);
+        if (user) {
+          return user;
+        } else {
+          return null;
+        }
+      },
+    }),
   ],
   pages: {
     signIn: '/login' // Set the custom login page URL
   },
+  secret: 'khgsdk4hsdkh',
   callbacks: {
-    session: async (session, user) => {
-      session.user.id = user.id; // Add the user id to the session object
-      return Promise.resolve(session);
-    }
-  }
-};
+    async session({ session, user, token }) {
+      session.user = token.user;
+      console.log(user)
 
-export default (req, res) => NextAuth(req, res, options);
+      return session
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      // console.log(token)
+      return token
+    },
+  },
 
+});
 
-
-// // pages/api/auth/[...nextauth].js
-// import NextAuth from 'next-auth';
-// import CredentialsProvider from 'next-auth/providers/credentials';
-// import {User} from '../../../../models/dbConn'
-
-
-// const handler = NextAuth({
-//   providers: [
-//     CredentialsProvider({
-//       name: 'Credentials',
-//       credentials: {
-//         email: { label: 'Email', type: 'text', placeholder: 'Email' },
-//         password: { label: 'Password', type: 'password' },
-//       },
-//       authorize: async(credentials)=>{
-//     //   async authorize(credentials, _req) {
-//         console.log("Credentials: ", credentials);
-//         // Add your manual authentication logic here
-//         // You can query the database or call an authentication API
-//         // Return an object with user information if authentication is successful
-//         // Return null or throw an error if authentication fails
-//         const user = {id: 1, Email: "jsmith@example.com", Password: "fsdafs" };
-//         // const user = credentials;
-//         if (user) {
-//             console.log(user);
-//             return user;
-//         } else {
-//             return null;
-//         }
-//       },
-//     }),
-//     // Add other authentication providers as needed
-//   ],
-//   baseUrl: 'http://localhost:3000/',
-//   pages: {
-//     signIn: "/login",
-//   },
-//   secret: process.env.JWT_SECRET,
-//   // Configure other options as needed
-// });
-
-// export { handler as GET, handler as POST }
+export { handler as GET, handler as POST }

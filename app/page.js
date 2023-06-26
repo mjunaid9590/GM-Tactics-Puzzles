@@ -6,26 +6,9 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import  Link  from "next/link";
-// import { Router } from 'react-router-dom';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
-// async function fetchAccountData() {
-//     const url = 'https://lichess.org/api/account';
-//     const token = 'lip_LP9wEc1crYktsAD0FYQV';
-//     //console.log('count')
-//     try {
-//         const response = await axios.get(url, {
-//             headers: {
-//                 Authorization: `Bearer ${token}`
-//             }
-//         });
-//         //console.log('api end')
-//         return response;
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//         console.log('error')
-//         return null;
-//     }
-// }
+
 async function fetchPuzzleDashboard() {
     const days = 30;
     const url = `https://lichess.org/api/puzzle/dashboard/30`;
@@ -45,7 +28,9 @@ async function fetchPuzzleDashboard() {
         return null;
     }
 }
-
+   const handleLogin = () => {
+        signIn();
+      };
 export default function Home() {
     // const [userData, setUserData] = useState(null);
     // const [username, setUsername] = useState("not logged in ");
@@ -94,13 +79,13 @@ export default function Home() {
             {/* {puzzleDashboard.global.nb} */}
             <MainBody puzzleDashboard={puzzleDashboard}></MainBody>
             {/* <Router> */}
-            <Link href="/login">
+            <button onClick={handleLogin}>
                 Login
 
-            </Link>
-            <Link href="/signup">
+            </button>
+            <button onClick={signOut}>
                 Signup
-            </Link>
+            </button>
             {/* </Router> */}
         </main>
     )
