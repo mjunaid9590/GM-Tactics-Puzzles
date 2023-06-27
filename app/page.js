@@ -1,12 +1,11 @@
 "use client";
 
-import Navbar from '@/components/Navbar'
 import MainBody from '@/components/MainBody'
 import axios from 'axios';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import  Link  from "next/link";
+import { useState, useEffect } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
 
 
 async function fetchPuzzleDashboard() {
@@ -28,34 +27,25 @@ async function fetchPuzzleDashboard() {
         return null;
     }
 }
-   const handleLogin = () => {
-        signIn();
-      };
 export default function Home() {
-    // const [userData, setUserData] = useState(null);
-    // const [username, setUsername] = useState("not logged in ");
-    // const [isLoggedIn, setIsLoggedIn] = useState(false);
-
     const [puzzleDashboard, setPuzzleDashboard] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    // const { session, status, isAuthenticated } = useAuth();
+    const { data: session, status } = useSession()
+    const router = useRouter();
 
-    // //Fetching account data
-    // useEffect(() => {
-    //     fetchAccountData()
-    //         .then(response => {
-    //             if (response) {
-    //                 //console.log('Data:', response.data.username);
-    //                 setUserData(response.data);
-    //                 setUsername(response.data.username);
-    //                 //console.log('username:', username)
-    //                 setIsLoggedIn(true);
-    //                 //console.log('approached');
-    //             }
-    //             else {
-    //                 setUsername('default');
-    //                 //console.log('not approached')
-    //             }
-    //         });
-    // }, []);
+    useEffect(() => {
+        if (status === 'authenticated') {
+          setIsLoading(false);
+          setIsAuthenticated(true);
+          console.log("authenticated")
+        } else if (status === 'unauthenticated') {
+            setIsAuthenticated(false);
+          router.push('/login');
+        }
+      }, [status, router]);
+    
     //Fetching Puzzle Data
     useEffect(() => {
         fetchPuzzleDashboard()
@@ -66,27 +56,32 @@ export default function Home() {
                     //console.log(puzzleDashboard);
                 }
                 else {
-                    setUsername('default');
+                    // setUsername('default');
                     console.log('not approached')
                 }
             });
     }, []);
+    // useEffect(() => {
+    //     if (!isLoading && !isAuthenticated) {
+    //       signIn();
+    //     }
+    //   }, [isLoading, isAuthenticated]);
+    if (isLoading) {
+        return <div>Loading...</div>;
+      }
+    if(isAuthenticated) {
     return (
 
         <main className="flex min-h-screen min-w-full flex-col items-center">
-            {/* <h1>{isLoggedIn}</h1> */}
-            {/* <Navbar username={username} isLoggedIn={isLoggedIn}></Navbar> */}
-            {/* {puzzleDashboard.global.nb} */}
+            
             <MainBody puzzleDashboard={puzzleDashboard}></MainBody>
-            {/* <Router> */}
-            <button onClick={handleLogin}>
-                Login
-
-            </button>
-            <button onClick={signOut}>
-                Signup
-            </button>
-            {/* </Router> */}
         </main>
     )
+    }
+    else{
+        <main className="flex min-h-screen min-w-full flex-col items-center">
+            Loading
+        </main>
+    }
+    
 }

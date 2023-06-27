@@ -1,21 +1,29 @@
 // pages/login.js
 "use client"
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 //import bcrypt from 'bcrypt';
 
-export default function Login() {
+export default function Signup() {
     const [fullName, setFullName] = useState('')
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [newPassword, setnewPassword] = useState('');
     const [verifyPassword, setVerifyPassword] = useState('');
     const [passwordEqual, setPasswordEqual] = useState(true);
     const [allFilled, setAllFilled] = useState(true);
+    const [signupError, setSignupError] = useState(false);
+
+    const router = useRouter();
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if((fullName == '')||(email =='')||(password=='')){
+        if((fullName == '')||(email =='')||(newPassword=='')){
             setAllFilled(false);
+            return;
         }
-        if(password != verifyPassword){
+        if(newPassword != verifyPassword){
             setPasswordEqual(false);
             return;
         }
@@ -27,16 +35,19 @@ export default function Login() {
             header: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({fullName, email, password }),
+            body: JSON.stringify({fullName, email, newPassword }),
         });
 
         if (response.ok) {
             //handle signup
             console.log('SignUp Successful');
+            setSignupError(false);
+            router.push('/login?signup=true');
         }
         else {
             //Handle Error
             console.error('signup failed');
+            setSignupError(true);
         }
     }
 
@@ -94,19 +105,19 @@ export default function Login() {
                                         />
                                     </div>
                                     <div className='my-2'>
-                                        <label htmlFor="password" className="sr-only">
+                                        <label htmlFor="newPassword" className="sr-only">
                                             Password
                                         </label>
                                         <input
-                                            id="password"
-                                            name="password"
+                                            id="newPassword"
+                                            name="newPassword"
                                             type="password"
                                             autoComplete="current-password"
                                             required
                                             className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                             placeholder="Password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
+                                            value={newPassword}
+                                            onChange={(e) => setnewPassword(e.target.value)}
                                         />
                                     </div>
                                     <div className='my-2'>

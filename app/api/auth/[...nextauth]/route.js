@@ -1,5 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from "next-auth/providers/credentials";
+import {User} from '../../../../models/dbConn'
+
 
 const handler = NextAuth({
   providers: [
@@ -10,14 +12,18 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Authorizing")
+        const email = credentials.username;
+        const userCheck = await User.findOne({email})
+        if(!userCheck) return null;
+        // console.log("Authorizing")
 
         const user = {
-          username: credentials.username,
-          password: credentials.password,
+          id: userCheck._id,
+          fullName: userCheck.name,
+          username: userCheck.email,
         }
         // const user = await res.json();
-        console.log(user);
+        console.log("User: ", user);
         if (user) {
           return user;
         } else {
@@ -33,7 +39,7 @@ const handler = NextAuth({
   callbacks: {
     async session({ session, user, token }) {
       session.user = token.user;
-      console.log(user)
+      console.log("User", user)
 
       return session
     },

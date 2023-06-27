@@ -1,30 +1,65 @@
 // pages/login.js
 "use client"
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // import { SignIn } from 'next-auth/client';
 
 export default function Login() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // console.log("Search Params: ", searchParams.get("signup"))
+    // console.log(router);
+    // console.log("Router Query: ", router.query);
+    const [afterSignup, setAfterSignup] = useState(false);
+
+    useEffect(() => {
+
+        if (searchParams.get("signup") == "true") {
+            setAfterSignup(true);
+        }
+        else {
+            setAfterSignup(false);
+        }
+    }, [searchParams.get("signup")]);
+    const [isError, setIsError] = useState(false);
+    const [errorDescription, setErrorDescription] = useState('Invalid email/password, please try again')
+    useEffect(() => {
+
+        if (searchParams.get("error")) {
+            setIsError(true);
+        }
+        else {
+            setIsError(false);
+        }
+    }, [searchParams.get("error")]);
+
     const emailRef = useRef('');
     const passwordRef = useRef('');
-    
-    const [error, setError] = useState('');
 
-    
+
+
     const onSubmit = async () => {
-        const result = await signIn("credentials", {
-          username: emailRef.current,
-          password: passwordRef.current,
-          redirect: true,
-          callbackUrl: "http://localhost:3000/",
-        });
-      };
-    
+        try {
+            const result = await signIn("credentials", {
+                username: emailRef.current,
+                password: passwordRef.current,
+                redirect: true,
+                callbackUrl: "http://localhost:3000/",
+            });
+            setIsError(false);
+        }
+        catch (error) {
+            setIsError(true);
+            return
+        }
+    };
 
 
-    
+
+
     return (
         <>
             <section className="text-gray-600 body-font">
@@ -38,7 +73,13 @@ export default function Login() {
                             hammock starladder roathse. Craies vegan tousled etsy austin.
                         </p>
                     </div>
+
                     <div className="lg:w-2/6 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
+                        {afterSignup &&
+                            <div class="p-3 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                                <span class="font-medium">Signup Successful!</span> Use your email and password to login.
+                            </div>
+                        }
                         <div className="max-w-md w-full space-y-8">
                             <div>
                                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
@@ -46,7 +87,11 @@ export default function Login() {
                             <div className="mt-8 space-y-6" >
                                 <input type="hidden" name="remember" value="true" />
                                 <div className="rounded-md shadow-sm -space-y-px">
-                                    {error && <p>{error}</p>}
+                                    {isError &&
+                                        <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                                            <span class="font-medium">Login Failed!</span> {errorDescription}.
+                                        </div>
+                                    }
 
                                     <div>
                                         <label htmlFor="email-address" className="sr-only">
@@ -60,7 +105,7 @@ export default function Login() {
                                             required
                                             className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                             placeholder="Email address"
-                                            onChange={(e) => (emailRef.current = e.target.value)}                                        />
+                                            onChange={(e) => (emailRef.current = e.target.value)} />
                                     </div>
                                     <div>
                                         <label htmlFor="password" className="sr-only">
