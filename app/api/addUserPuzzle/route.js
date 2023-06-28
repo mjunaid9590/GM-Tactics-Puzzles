@@ -2,12 +2,12 @@ import { MongoClient } from 'mongodb';
 import bcrypt from 'bcrypt';
 import { NextResponse, NextRequest } from 'next/server'
 
-import {User} from '../../../models/dbConn'
+import {UserPuzzle} from '../../../models/dbConn'
 
 
 
 export async function POST(request) {
-    console.log("signup API");
+    console.log("addUserPuzzle API");
     // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
     // puzzleSetId: { type: mongoose.Schema.Types.ObjectId, required: true },
     // puzzleId: { type: String, ref: 'Puzzles', required: true },
@@ -16,10 +16,9 @@ export async function POST(request) {
 
     const body = await request.json();
     const { userId, puzzleSet, puzzleId, isSolved, isAttempted } = body;
-    const name = fullName;
-    const password = await bcrypt.hash(newPassword,10);
+     console.log(userId);
     try {
-        const newUserPuzzle = new User({
+        const newUserPuzzle = new UserPuzzle({
             userId,
             puzzleSet,
             puzzleId,
@@ -27,9 +26,9 @@ export async function POST(request) {
             isAttempted
         });
         await newUserPuzzle.save();
-        // console.log(User.db.name)
+         console.log(newUserPuzzle);
         return NextResponse.json({ message: 'Data updated successfully'},{status: 201} )
     } catch (error){
-        return  NextResponse.json({message: 'Error! Could not enter user puzzle'}, {status: 500})
+        return  NextResponse.json({message: error}, {status: 500})
     }
 }

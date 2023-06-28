@@ -76,8 +76,8 @@ export default function Login() {
 
                     <div className="lg:w-2/6 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
                         {afterSignup &&
-                            <div class="p-3 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-                                <span class="font-medium">Signup Successful!</span> Use your email and password to login.
+                            <div className="p-3 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                                <span className="font-medium">Signup Successful!</span> Use your email and password to login.
                             </div>
                         }
                         <div className="max-w-md w-full space-y-8">
@@ -88,8 +88,8 @@ export default function Login() {
                                 <input type="hidden" name="remember" value="true" />
                                 <div className="rounded-md shadow-sm -space-y-px">
                                     {isError &&
-                                        <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                                            <span class="font-medium">Login Failed!</span> {errorDescription}.
+                                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                                            <span className="font-medium">Login Failed!</span> {errorDescription}.
                                         </div>
                                     }
 

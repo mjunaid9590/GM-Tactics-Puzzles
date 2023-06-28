@@ -2,16 +2,21 @@ import { Chessboard } from 'react-chessboard'
 // import {Chessground} from 'react-chessground'
 import "react-chessground/dist/styles/chessground.css"
 import styles from '@/styles/Home.module.css'
-import {Chess} from "chess.js"
-import {useState, useEffect} from "react"
+import { Chess } from "chess.js"
+import { useState, useEffect } from "react"
 import axios from 'axios';
-
+import { useSession } from "next-auth/react"
+import { useRef } from 'react'
 
 import React from 'react'
 
-async function fetchPuzzle() {
-    const puzzleId = '00sO1'
-    const url = `https://lichess.org/api/puzzle/${puzzleId}`;
+async function fetchPuzzle(set, serialNo) {
+
+
+    // const puzzleId = '00sO1'
+    console.log("CG set: ", set)
+    console.log("CG serial: ", serialNo)
+    const url = `/api/fetchPuzzle?set=${set}&&serialNo=${serialNo}`;
     // const token = 'lip_LP9wEc1crYktsAD0FYQV';
     //console.log('count')
     try {
@@ -26,51 +31,59 @@ async function fetchPuzzle() {
 }
 
 
-const ChessboardComponent = () => {
-   // const gameInitial = new Chess();
+const ChessboardComponent = ({ serialNo, set, onMessage}) => {
+    const chessboardRef = useRef();
+
+    // const gameInitial = new Chess();
     const [puzzleData, setPuzzleData] = useState(null);
-    
-    const [game, setGame] = useState(new Chess());
+    const [puzzleMoves, setPuzzleMoves] = useState([]);
+
+    const [game, setGame] = useState(null);
     //const [game, setGame] = useState(puzzleData);
     useEffect(() => {
-        fetchPuzzle()
+        fetchPuzzle(set, serialNo)
             .then(response => {
                 if (response) {
                     //console.log('Dashboard:', response.data);
-                    
+
                     setPuzzleData(response.data);
-                    console.log(response.data);
-                    var gameCopy = new Chess(game.fen());
-                    // gameCopy = game;
-                    //gameCopy.loadPgn = game.loadPgn();
-                    console.log("gameCopy: ", gameCopy);
-                    console.log("game: ", game);
-                    gameCopy.loadPgn(response.data.game.pgn);
-                    setGame(gameCopy);
+                    console.log("Response Data", response.data[0].FEN);
+                    const chess = new Chess(response.data[0].FEN)
+                    const moves = response.data[0].Moves;
+                    setPuzzleMoves(moves.split(' '));
+                    // var gameCopy = new Chess(game.fen());
+                    // // gameCopy = game;
+                    // //gameCopy.loadPgn = game.loadPgn();
+                    // console.log("gameCopy: ", gameCopy);
+                    // console.log("game: ", game);
+                    // gameCopy.loadPgn(response.data.game.pgn);
+                    // setGame(gameCopy);
                     // game.loadPgn(response.data.game.pgn);
                     // console.log(game.moves());
                     //console.log("Fetched puzzle: ", response.data);
-                    console.log(game.turn());
-                    
+                    // console.log(game.turn());
+                    setGame(chess);
+
                 }
                 else {
                     console.log('not approached')
                 }
             });
-      }, []);
+    }, [set, serialNo]);
 
-
+    console.log("puzzleMoves: ", puzzleMoves);
     function makeAMove(move) {
         //new Chess(game.fen())
+        console.log(move);
         var gameCopy = new Chess(game.fen());
         // gameCopy = game;
         const result = gameCopy.move(move);
-        
+
         // console.log(game.turn());
         console.log("result: ", result)
         setGame(gameCopy);
         //console.log(game);
-        
+        // console.log("making Move")
         return result; // null if the move was illegal, the move object if the move was legal
     }
 
@@ -80,25 +93,38 @@ const ChessboardComponent = () => {
         const randomIndex = Math.floor(Math.random() * possibleMoves.length);
         makeAMove(possibleMoves[randomIndex]);
     }
-
+    function makeNextMove(){
+        if (puzzleMoves.length > 0) {
+            const move = puzzleMoves.shift();
+            makeAMove(move);
+          } else {
+            // Computer's move from e2 to g4
+            const computerMove = 'e2g4';
+            makeAMove(computerMove);
+          }
+        
+    }
     function onDrop(sourceSquare, targetSquare) {
         const move = makeAMove({
             from: sourceSquare,
             to: targetSquare,
             //promotion: "q", // always promote to a queen for example simplicity
         });
+        // const move2 = puzzleMoves.shift();
         console.log("manual move made")
         // illegal move
         if (move === null) return false;
-        //setTimeout(makeRandomMove, 200);
-        console.log("Automatic move made")
+        setTimeout(makeRandomMove, 2000);
+        // setTimeout(makeNextMove, 2000)
+        // console.log("Automatic move made", move2)
+        // setTimeout(makeAMove(puzzleMoves), 2000)
         return true;
     }
-    
-   // console.log("updated game: ", game)
+
+    // console.log("updated game: ", game)
     return ((
-        game && 
-        <Chessboard className={styles.chessboard} key={game.fen()} position={game.fen()} onPieceDrop={onDrop} boardWidth={500}>{console.log("Re-rendered")}</Chessboard>
+        game &&
+        <Chessboard ref={chessboardRef} className={styles.chessboard} key={game.fen()} position={game.fen()} onPieceDrop={onDrop} boardWidth={500}>{console.log("Re-rendered")}</Chessboard>
     ))
 }
 

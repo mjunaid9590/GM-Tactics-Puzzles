@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react'
+import React, { Children } from 'react'
 import Navbar from '@/components/Navbar'
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react"
 const Template = ({children}) => {
     const [username, setUsername] = useState("not logged in ");
     const [fullName, setFullName] = useState("not logged in ");
+    const [userId, setuserId] = useState("")
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     //Fetching account data
@@ -16,9 +17,11 @@ const Template = ({children}) => {
     useEffect(() => {
       if (status === "authenticated") {
         setIsLoggedIn(true);
+        setuserId(session.user.id)
         setUsername(session.user.username)
         setFullName(session.user.fullName)
-        
+        console.log(session.user.id)
+
         // console.log("Session User: ", session);
     }
     // console.log("Session Status: ", status)
@@ -26,11 +29,11 @@ const Template = ({children}) => {
       
     
      }, [status]);
-    
   return (
-    <div>
+    <div className='template'>
         <Navbar fullName={fullName} isLoggedIn={isLoggedIn}></Navbar>
-      {children}
+        {/* {userId} */}
+        {children}
     </div>
   )
 }

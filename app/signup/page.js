@@ -13,18 +13,24 @@ export default function Signup() {
     const [passwordEqual, setPasswordEqual] = useState(true);
     const [allFilled, setAllFilled] = useState(true);
     const [signupError, setSignupError] = useState(false);
+    const [alreadyExist, setAlreadyExist] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const router = useRouter();
 
 
     const handleSubmit = async (e) => {
+        setIsLoading(true)
+        setAlreadyExist(false);
         e.preventDefault();
         if((fullName == '')||(email =='')||(newPassword=='')){
             setAllFilled(false);
+            setIsLoading(false);
             return;
         }
         if(newPassword != verifyPassword){
             setPasswordEqual(false);
+            setIsLoading(false)
             return;
         }
         else{
@@ -45,10 +51,11 @@ export default function Signup() {
             router.push('/login?signup=true');
         }
         else {
-            //Handle Error
+            setAlreadyExist(true);
             console.error('signup failed');
             setSignupError(true);
         }
+        setIsLoading(false);
     }
 
 
@@ -71,6 +78,11 @@ export default function Signup() {
                                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign Up</h2>
                             </div>
                             <form className="mt-8 " onSubmit={handleSubmit}>
+                            {alreadyExist &&
+                                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100 dark:bg-gray-800 dark:text-red-400" role="alert">
+                                            <span className="font-medium">Signup Failed! user already exist</span>
+                                        </div>
+                                    }
                                 <input type="hidden" name="remember" value="true" />
                                 <div className="rounded-md shadow-sm">
                                     <div className='my-2'>
@@ -163,13 +175,14 @@ export default function Signup() {
 
                                     <div className="text-sm">
                                         <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                            Forgot your password?
+                                            {/* Forgot your password? */}
                                         </a>
                                     </div>
                                 </div>
 
                                 <div>
                                     <button
+                                        disabled={isLoading}
                                         type="submit"
                                         className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >

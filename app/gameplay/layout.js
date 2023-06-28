@@ -1,9 +1,14 @@
+"use client"
 import React from 'react'
+// import { useState } from 'react'
 
-const Layout = ({children}) => {
+const Layout = ({userId, children}) => {
+  // console.log("userId: ", userId)
   return (
-    <div>
-      {children}
+    <div className='gameplayLayout'>
+      {/* {userId} */}
+        {/* {React.cloneElement(children, {userId: userId})} */}
+        {children}
     </div>
   )
 }

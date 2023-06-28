@@ -1,12 +1,44 @@
 "use client"
-import React from 'react'
+import React, { useEffect } from 'react'
 import ChessboardComponent from '../../components/Chessground';
 import { TbPlayerTrackNext } from 'react-icons/tb'
+import { useState } from 'react';
 
+const Page = ({ userId }) => {
+    const [moveResult, setMoveResult]= useState(null);
+    const [isCorrect, setIsCorrect] = useState(false);
+    const [isWon, setIsWon] = useState(false);
+    const [isLost, setIsLost] = useState(false);
 
-const Page = () => {
+    const handleMessage = (childMessage) => {
+        setMoveResult(childMessage); //Value: "correct", "Won", ""Lost"
+    };
+    useEffect(()=>{
+        if(moveResult=="correct"){
+            setIsCorrect(true);
+            setIsWon(false);
+            setIsLost(false);
+        }
+        else if(moveResult=="won"){
+            setIsCorrect(false);
+            setIsWon(true);
+            setIsLost(false);
+        }
+        else if(moveResult=="lost"){
+            setIsCorrect(false);
+            setIsWon(false);
+            setIsLost(true);
+        }
+        else {
+            setIsCorrect(false);
+            setIsWon(false);
+            setIsLost(false);
+        }
+    },[moveResult])
+
     return (
         <div>
+            {typeof userId}
             <hr />
             <section className="text-gray-600 body-font relative">
                 <div className="container px-5 py-4 mx-auto flex sm:flex-nowrap flex-wrap">
@@ -21,7 +53,7 @@ const Page = () => {
 
                                     </div>
                                 </section>
-                                <ChessboardComponent />
+                                <ChessboardComponent serialNo={2} set={1} onMessage={handleMessage} />
 
                             </div>
                         </section>
@@ -70,10 +102,10 @@ const Page = () => {
                                     className="w-full  bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-transparent focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
-                            
+
                         </div>
 
-                        
+
                         <button className="text-white bg-indigo-500 border-0 py-2 px-6 mt-4 focus:outline-none hover:bg-indigo-600 rounded text-lg">
                             Submit & Proceed to Next
                         </button>
