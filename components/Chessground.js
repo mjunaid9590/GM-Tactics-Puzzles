@@ -5,7 +5,6 @@ import styles from '@/styles/Home.module.css'
 import { Chess } from "chess.js"
 import { useState, useEffect } from "react"
 import axios from 'axios';
-import { useSession } from "next-auth/react"
 import { useRef } from 'react'
 
 import React from 'react'
@@ -37,6 +36,7 @@ const ChessboardComponent = ({ serialNo, set, onMessage}) => {
     // const gameInitial = new Chess();
     const [puzzleData, setPuzzleData] = useState(null);
     const [puzzleMoves, setPuzzleMoves] = useState([]);
+    const [currentPosition, setCurrentPosition] = useState('');
 
     const [game, setGame] = useState(null);
     //const [game, setGame] = useState(puzzleData);
@@ -63,6 +63,8 @@ const ChessboardComponent = ({ serialNo, set, onMessage}) => {
                     //console.log("Fetched puzzle: ", response.data);
                     // console.log(game.turn());
                     setGame(chess);
+                    setCurrentPosition(chess.fen());
+
 
                 }
                 else {
@@ -71,18 +73,31 @@ const ChessboardComponent = ({ serialNo, set, onMessage}) => {
             });
     }, [set, serialNo]);
 
-    console.log("puzzleMoves: ", puzzleMoves);
+    // useEffect(()=>{
+    //     console.log("Current Game: ", game)
+    // },[game])
+
+    // console.log("puzzleMoves: ", puzzleMoves);
     function makeAMove(move) {
         //new Chess(game.fen())
         console.log(move);
-        var gameCopy = new Chess(game.fen());
+        // var gameCopy = new Chess(game.fen());
+        const gameCopy = new Chess(currentPosition);
+
+        // console.log("Current Player: ", gameCopy._turn)
+        // console.log("game before: ",game);
+
         // gameCopy = game;
         const result = gameCopy.move(move);
+        // console.log("After Player: ", gameCopy._turn)
+        // console.log("Current Player: ", gameCopy._turn)
+        // console.log("game after: ",game);
 
         // console.log(game.turn());
-        console.log("result: ", result)
+        // console.log("result: ", result)
         setGame(gameCopy);
-        //console.log(game);
+        setCurrentPosition(gameCopy.fen());
+
         // console.log("making Move")
         return result; // null if the move was illegal, the move object if the move was legal
     }
@@ -91,7 +106,16 @@ const ChessboardComponent = ({ serialNo, set, onMessage}) => {
         const possibleMoves = game.moves();
         if (game.isGameOver() || game.isDraw() || possibleMoves.length === 0) return; // exit if the game is over
         const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-        makeAMove(possibleMoves[randomIndex]);
+        const randomMove = possibleMoves[randomIndex];
+        makeAMove(randomMove);
+
+        // const thismove = {
+        //     from: 'e2',
+        //     to: 'g4',
+        // }
+        // // console.log("Player to random move: ", game._turn)
+
+        // makeAMove(thismove);
     }
     function makeNextMove(){
         if (puzzleMoves.length > 0) {
@@ -104,27 +128,42 @@ const ChessboardComponent = ({ serialNo, set, onMessage}) => {
           }
         
     }
-    function onDrop(sourceSquare, targetSquare) {
-        const move = makeAMove({
-            from: sourceSquare,
-            to: targetSquare,
-            //promotion: "q", // always promote to a queen for example simplicity
-        });
+    function afterDrop(automove) {
+        const move = makeAMove(automove);
         // const move2 = puzzleMoves.shift();
         console.log("manual move made")
         // illegal move
         if (move === null) return false;
-        setTimeout(makeRandomMove, 2000);
+        // setTimeout(makeRandomMove, 2000);
         // setTimeout(makeNextMove, 2000)
         // console.log("Automatic move made", move2)
         // setTimeout(makeAMove(puzzleMoves), 2000)
         return true;
     }
 
+    function onDrop(sourceSquare, targetSquare) {
+        console.log("Player to Move: ", game._turn)
+        const move = makeAMove({
+            from: sourceSquare,
+            to: targetSquare,
+            //promotion: "q", // always promote to a queen for example simplicity
+        });
+        // const move2 = puzzleMoves.shift();
+
+        console.log("manual move made")
+        // illegal move
+        if (move === null) return false;
+        //  setTimeout(afterDrop(puzzleMoves[1]), 2000);
+        // setTimeout(makeNextMove, 2000)
+        // console.log("Automatic move made", move2)
+        setTimeout(makeRandomMove, 2000)
+        return true;
+    }
+
     // console.log("updated game: ", game)
     return ((
         game &&
-        <Chessboard ref={chessboardRef} className={styles.chessboard} key={game.fen()} position={game.fen()} onPieceDrop={onDrop} boardWidth={500}>{console.log("Re-rendered")}</Chessboard>
+        <Chessboard ref={chessboardRef} className={styles.chessboard} key={currentPosition} position={currentPosition} onPieceDrop={onDrop} boardWidth={500}>{console.log("Re-rendered")}</Chessboard>
     ))
 }
 

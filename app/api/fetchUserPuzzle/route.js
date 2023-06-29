@@ -12,6 +12,7 @@ export async function GET(request) {
     // console.log(request.url)
     const {searchParams} = new URL(request.url);
     const userId = searchParams.get("userId");
+    const isRepeat = searchParams.get("repeat")
     // console.log("userId: ", userId)
     const thisUserData = await UserPuzzle.find({userId: userId});
     // console.log(thisUserData);

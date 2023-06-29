@@ -86,7 +86,7 @@ export default function Login() {
                             </div>
                             <div className="mt-8 space-y-6" >
                                 <input type="hidden" name="remember" value="true" />
-                                <div className="rounded-md shadow-sm -space-y-px">
+                                <div className="rounded-md shadow-sm ">
                                     {isError &&
                                         <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                                             <span className="font-medium">Login Failed!</span> {errorDescription}.
@@ -107,7 +107,7 @@ export default function Login() {
                                             placeholder="Email address"
                                             onChange={(e) => (emailRef.current = e.target.value)} />
                                     </div>
-                                    <div>
+                                    <div className='mt-4'>
                                         <label htmlFor="password" className="sr-only">
                                             Password
                                         </label>

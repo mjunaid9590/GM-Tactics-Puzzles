@@ -28,12 +28,14 @@ async function fetchPuzzleDashboard() {
     }
 }
 export default function Home() {
+    const router = useRouter();
+
+    router.push('/puzzleSets')
     const [puzzleDashboard, setPuzzleDashboard] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     // const { session, status, isAuthenticated } = useAuth();
     const { data: session, status } = useSession()
-    const router = useRouter();
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -79,7 +81,7 @@ export default function Home() {
     )
     }
     else{
-        <main className="flex min-h-screen min-w-full flex-col items-center">
+        <main className="flex h-screen min-h-screen min-w-full flex-col items-center">
             Loading
         </main>
     }
