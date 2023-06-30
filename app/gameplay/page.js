@@ -6,7 +6,7 @@ import { TbPlayerTrackNext } from 'react-icons/tb'
 import { useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import { UserContext } from '../UserContext';
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 async function fetchPuzzle(set, serialNo) {
     const url = `/api/fetchPuzzle?set=${set}&&serialNo=${serialNo}`;
@@ -39,6 +39,7 @@ async function fetchUserPuzzle(userId, repeat, set) {
 
 const Page = () => {
     const { userId } = useContext(UserContext);
+    const router = useRouter();
 
     const [moveResult, setMoveResult] = useState(null);
     const [isCorrect, setIsCorrect] = useState(false);
