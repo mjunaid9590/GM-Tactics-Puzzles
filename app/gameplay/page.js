@@ -154,7 +154,7 @@ const Page = () => {
             body: JSON.stringify({ q1Value, q2_1Value, q2_2Value, q3Value, userPuzzleId }),
         });
         // setNextPuzzle(!nextPuzzle)
-        window.location.reload();
+        router.reload();
 
     }
 
