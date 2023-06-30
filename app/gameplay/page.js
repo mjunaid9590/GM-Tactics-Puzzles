@@ -6,7 +6,8 @@ import { TbPlayerTrackNext } from 'react-icons/tb'
 import { useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import { UserContext } from '../UserContext';
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 async function fetchPuzzle(set, serialNo) {
     const url = `/api/fetchPuzzle?set=${set}&&serialNo=${serialNo}`;
@@ -55,7 +56,7 @@ const Page = () => {
     const [nextPuzzle, setNextPuzzle] = useState(null);
     useEffect(() => {
         setNextPuzzle(true);
-    })
+    }, [])
     const Q1Ref = useRef();
     const Q2_1Ref = useRef();
     const Q2_2Ref = useRef();
@@ -84,6 +85,9 @@ const Page = () => {
     }
 
     useEffect(() => {
+        console.log("userId: ", userId);
+        console.log(nextPuzzle)
+
         if (userId != '') {
 
             setThisUserId(userId)
@@ -94,6 +98,7 @@ const Page = () => {
                 .then(response => {
                     setUserPuzzleId(response.data._id);
                     console.log(response.data._id);
+                    // if(response.data.serialNo)
                     fetchPuzzle(response.data.puzzleSet, response.data.serialNo)
                         .then(puzzleResponse => {
                             if (puzzleResponse) {
@@ -120,7 +125,7 @@ const Page = () => {
                         });
                 })
         }
-    }, [userId]);
+    }, [nextPuzzle, userId]);
 
 
     const handleMessage = (childMessage) => {
@@ -153,8 +158,16 @@ const Page = () => {
             },
             body: JSON.stringify({ q1Value, q2_1Value, q2_2Value, q3Value, userPuzzleId }),
         });
-        // setNextPuzzle(!nextPuzzle)
-        router.reload();
+        if(serialNo>=1000){
+            router.push('/')
+        }
+        setNextPuzzle(!nextPuzzle)
+        setMoveResult(null);
+        setIsCorrect(false);
+        setIsWon(false);
+        setIsLost(false);
+        setIsLoading(true);
+        // router.reload();
 
     }
 
@@ -281,10 +294,18 @@ const Page = () => {
                                 className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                             />
                         </div>
-
-                        <button disabled={isLoading} onClick={formSubmit} className="text-white bg-indigo-500 border-0 py-2 px-6 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                            Submit & Proceed to Next
-                        </button>
+                        {
+                            (isLost || isWon) &&
+                            <button disabled={isLoading} onClick={formSubmit} className="text-white bg-indigo-500 border-0 py-2 px-6 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                                Submit & Proceed to Next
+                            </button>
+                        }
+                        {
+                            !(isLost || isWon) &&
+                            <button className="cursor-default text-white bg-indigo-200 border-0 py-2 px-6 mt-2 focus:outline-none rounded text-lg">
+                                Submit & Proceed to Next
+                            </button>
+                        }
                         {/* <p className="text-xs text-gray-500 mt-3">
                             Ratings will be updated after you submit the puzzle.
                         </p> */}
