@@ -11,7 +11,7 @@ mongoose.connect(connectionString, {
 
 // Get the default connection
 const db = mongoose.connection;
-
+console.log("database string: ", db);
 // Handle connection error
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
