@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useEffect, createContext } from 'react';
 import { useSession } from "next-auth/react"
 import { UserProvider } from './UserContext';
+import PuzzleSetWrapper from './puzzleSetWrapper';
 
 
 const Template = ({ children }) => {
@@ -36,6 +37,7 @@ const Template = ({ children }) => {
       <UserProvider>
         <Navbar fullName={fullName} isLoggedIn={isLoggedIn}></Navbar>
         <main className="flex min-h-screen min-w-full flex-col items-center">
+
         {/* {userId} */}
         {children}
         </main>

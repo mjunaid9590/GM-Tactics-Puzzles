@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { useSession } from "next-auth/react"
+import { useSession,getSession } from "next-auth/react"
 
 
 export const UserContext = createContext();
@@ -7,18 +7,21 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const { data: session, status } = useSession()
     const [userId, setUserId] = useState('');
-    const [loginStatus, setLoginStatus] = useState(status)
+    const [loginStatus, setLoginStatus] = useState("loading")
+    // console.log("Login status in context: ", loginStatus)
+    // console.log("Status: ", status)
   useEffect(() => {
+    setLoginStatus(status)
     if (status === "authenticated") {
     //   setIsLoggedIn(true);
       setUserId(session.user.id)
-      setLoginStatus(status)
     //   setUsername(session.user.username)
     //   setFullName(session.user.fullName)
       // console.log(session.user.id)
 
       // console.log("Session User: ", session);
     }
+
     // console.log("Session Status: ", status)
     // console.log(username);
 
@@ -32,3 +35,12 @@ export const UserProvider = ({ children }) => {
     </UserContext.Provider>
   );
 };
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  console.log(session)
+  return {
+    props: {
+      initialSession: session,
+    },
+  };
+}

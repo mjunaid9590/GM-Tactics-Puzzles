@@ -8,6 +8,8 @@ import axios from 'axios';
 import { UserContext } from '../UserContext';
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation';
+import PulseLoader from 'react-spinners/PulseLoader';
+
 
 async function fetchPuzzle(set, serialNo) {
     const url = `/api/fetchPuzzle?set=${set}&&serialNo=${serialNo}`;
@@ -39,8 +41,22 @@ async function fetchUserPuzzle(userId, repeat, set) {
 
 
 const Page = () => {
-    const { userId } = useContext(UserContext);
+    const { userId, loginStatus } = useContext(UserContext);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
+    useEffect(() => {
+        console.log("Login Status Changed")
+        if (loginStatus === 'authenticated') {
+            // setIsLoading(false);
+            setIsAuthenticated(true);
+            // console.log("authenticated")
+        } else if (loginStatus === 'unauthenticated') {
+            console.log("session is unauthenticated")
+            setIsAuthenticated(false);
+            router.push('/login');
+        }
+    }, [loginStatus]);
+
 
     const [moveResult, setMoveResult] = useState(null);
     const [isCorrect, setIsCorrect] = useState(false);
@@ -54,6 +70,8 @@ const Page = () => {
     const [userPuzzleId, setUserPuzzleId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [nextPuzzle, setNextPuzzle] = useState(null);
+    const [formSubmitted, setFormSubmitted] = useState(false);
+
     useEffect(() => {
         setNextPuzzle(true);
     }, [])
@@ -146,6 +164,7 @@ const Page = () => {
     }
 
     const formSubmit = async () => {
+        setFormSubmitted(true)
         console.log("Form Submit function")
         const q1Value = Q1Ref.current.value;
         const q2_1Value = Q2_1Ref.current.value;
@@ -158,9 +177,10 @@ const Page = () => {
             },
             body: JSON.stringify({ q1Value, q2_1Value, q2_2Value, q3Value, userPuzzleId }),
         });
-        if(serialNo>=1000){
+        if (serialNo >= 1000) {
             router.push('/')
         }
+        setFormSubmitted(false);
         setNextPuzzle(!nextPuzzle)
         setMoveResult(null);
         setIsCorrect(false);
@@ -195,160 +215,175 @@ const Page = () => {
             setIsLost(false);
         }
     }, [moveResult])
+    if (isAuthenticated) {
+        return (
+            <div>
+                {/* {typeof userId} */}
+                <hr />
+                <section className="text-gray-600 body-font relative">
+                    <div className="container px-5 py-4 mx-auto flex sm:flex-nowrap flex-wrap">
+                        <div className=" border-gray-400 flex mx-auto relative">
+                            <section className="text-gray-600 body-font">
+                                {!isLoading && <div className="px-auto rounded-lg mt-6 sm:mt-0 lg:px-10">
+                                    <section className="text-gray-600 body-font">
+                                        <div className="container mx-auto flex flex-col">
+                                            <h2 className="text-md text-indigo-500 tracking-widest font-medium title-font mb-1">Puzzle No: {serialNo}/1000</h2>
+                                            <h1 className="md:text-3xl text-2xl font-medium title-font text-gray-900">Find Best Move for "{currentPlayer}"</h1>
 
-    return (
-        <div>
-            {/* {typeof userId} */}
-            <hr />
-            <section className="text-gray-600 body-font relative">
-                <div className="container px-5 py-4 mx-auto flex sm:flex-nowrap flex-wrap">
-                    <div className=" border-gray-400 flex mx-auto relative">
-                        <section className="text-gray-600 body-font">
-                            {!isLoading && <div className="px-auto rounded-lg mt-6 sm:mt-0 lg:px-10">
-                                <section className="text-gray-600 body-font">
-                                    <div className="container mx-auto flex flex-col">
-                                        <h2 className="text-md text-indigo-500 tracking-widest font-medium title-font mb-1">Puzzle No: {serialNo}/1000</h2>
-                                        <h1 className="md:text-3xl text-2xl font-medium title-font text-gray-900">Find Best Move for "{currentPlayer}"</h1>
 
-
+                                        </div>
+                                    </section>
+                                    {/* <ChessboardComponent serialNo={2} set={1} onMessage={handleMessage} /> */}
+                                    <div className=" border-gray-300">
+                                        {(fenData && puzzleMoves) &&
+                                            <ChessBoard fenData={fenData} puzzleMoves={puzzleMoves} onMessage={handleMessage} />
+                                        }
                                     </div>
-                                </section>
-                                {/* <ChessboardComponent serialNo={2} set={1} onMessage={handleMessage} /> */}
-                                <div className=" border-gray-300">
-                                    {(fenData && puzzleMoves) &&
-                                        <ChessBoard fenData={fenData} puzzleMoves={puzzleMoves} onMessage={handleMessage} />
-                                    }
-                                </div>
-                            </div>}
-                            {
-                                isLoading && <h1 className='text-5xl mt-5'>Loading...</h1>
-                            }
-                        </section>
+                                </div>}
+                                {
+                                    isLoading &&
+                                    <div className="flex flex-col items-center justify-center">
+                                        <h1 className="text-5xl mt-5">Loading</h1>
+                                        <div className="mt-5">
+                                            <PulseLoader color="rgba(99, 102, 241, 1)" />
+                                        </div>
+                                    </div>
 
-                    </div>
-                    <div className="lg:w-1/2 md:w-1/2 flex flex-col px-4 md:ml-auto w-full md:py-4 mt-8 md:mt-0">
+                                }
+                            </section>
 
-                        <h2 className="inline text-gray-900 text-2xl mb-1 font-medium title-font">
-                            Questions
-                        </h2>
-                        <p className="inline leading-relaxed mb-2 text-gray-600">
-                            Answer following questions while finding your best move.
-                        </p>
-                        <div className="relative mb-2">
-                            <label htmlFor="name" className="leading-7 text-lg text-gray-600">
-                                General observations about the position and placement of pieces?
-                                <br />
-                                <p className='text-sm'>
-
-                                    (undefine pieces, potential forks and skewers etc..)
-                                </p>
-                            </label>
-                            <input
-                                ref={Q1Ref}
-                                type="text"
-                                id="name"
-                                name="name"
-                                className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                            />
                         </div>
-                        <div className="flex w-full sm:flex-row flex-col px-8 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-end">
-                            <div className="relative flex-grow w-full">
-                                <label htmlFor="full-name" className="leading-7 text-lg text-gray-600">
-                                    Candatide Move # 1
+                        <div className="lg:w-1/2 md:w-1/2 flex flex-col px-4 md:ml-auto w-full md:py-4 mt-8 md:mt-0">
+
+                            <h2 className="inline text-gray-900 text-2xl mb-1 font-medium title-font">
+                                Questions
+                            </h2>
+                            <p className="inline leading-relaxed mb-2 text-gray-600">
+                                Answer following questions while finding your best move.
+                            </p>
+                            <div className="relative mb-2">
+                                <label htmlFor="name" className="leading-7 text-lg text-gray-600">
+                                    General observations about the position and placement of pieces?
+                                    <br />
+                                    <p className='text-sm'>
+
+                                        (undefine pieces, potential forks and skewers etc..)
+                                    </p>
                                 </label>
                                 <input
-                                    ref={Q2_1Ref}
+                                    ref={Q1Ref}
                                     type="text"
-                                    id="full-name"
-                                    name="full-name"
+                                    id="name"
+                                    name="name"
                                     className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
-                            <div className="relative flex-grow w-full">
-                                <label htmlFor="email" className="leading-7 text-lg text-gray-600">
-                                    Candatide Move # 2
+                            <div className="flex w-full sm:flex-row flex-col px-8 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-end">
+                                <div className="relative flex-grow w-full">
+                                    <label htmlFor="full-name" className="leading-7 text-lg text-gray-600">
+                                        Candatide Move # 1
+                                    </label>
+                                    <input
+                                        ref={Q2_1Ref}
+                                        type="text"
+                                        id="full-name"
+                                        name="full-name"
+                                        className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    />
+                                </div>
+                                <div className="relative flex-grow w-full">
+                                    <label htmlFor="email" className="leading-7 text-lg text-gray-600">
+                                        Candatide Move # 2
+                                    </label>
+                                    <input
+                                        ref={Q2_2Ref}
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    />
+                                </div>
+
+                            </div>
+                            <div className="relative mb-2 mt-2">
+                                <label htmlFor="name" className="leading-7 text-lg text-gray-600">
+                                    Calculation of full line with different variations.
+                                    <br />
+                                    <p className='text-sm'>
+                                        (try to visualize as far as possible, try to come up with best response for your opponent as well)
+                                    </p>
                                 </label>
                                 <input
-                                    ref={Q2_2Ref}
-                                    type="email"
-                                    id="email"
-                                    name="email"
+                                    ref={Q3Ref}
+                                    type="text"
+                                    id="name"
+                                    name="name"
                                     className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
+                            {
+                                ((isLost || isWon) && (!formSubmitted)) &&
+                                <button disabled={isLoading} onClick={formSubmit} className="text-white bg-indigo-500 border-0 py-2 px-6 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                                    Submit & Proceed to Next
+                                </button>
+                            }
+                            {
+                                (!(isLost || isWon) || formSubmitted) &&
+                                <button className="cursor-default text-white bg-indigo-200 border-0 py-2 px-6 mt-2 focus:outline-none rounded text-lg">
+                                    {
+                                        !formSubmitted && "Submit & Proceed to Next"
+                                    }
+                                    {formSubmitted && <PulseLoader color="rgba(99, 102, 241, 1)"  ></PulseLoader>}
 
-                        </div>
-                        <div className="relative mb-2 mt-2">
-                            <label htmlFor="name" className="leading-7 text-lg text-gray-600">
-                                Calculation of full line with different variations.
-                                <br />
-                                <p className='text-sm'>
-                                    (try to visualize as far as possible, try to come up with best response for your opponent as well)
-                                </p>
-                            </label>
-                            <input
-                                ref={Q3Ref}
-                                type="text"
-                                id="name"
-                                name="name"
-                                className="w-full bg-none mt-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                            />
-                        </div>
-                        {
-                            (isLost || isWon) &&
-                            <button disabled={isLoading} onClick={formSubmit} className="text-white bg-indigo-500 border-0 py-2 px-6 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                                Submit & Proceed to Next
-                            </button>
-                        }
-                        {
-                            !(isLost || isWon) &&
-                            <button className="cursor-default text-white bg-indigo-200 border-0 py-2 px-6 mt-2 focus:outline-none rounded text-lg">
-                                Submit & Proceed to Next
-                            </button>
-                        }
-                        {/* <p className="text-xs text-gray-500 mt-3">
-                            Ratings will be updated after you submit the puzzle.
-                        </p> */}
-                        <div className='mt-4 w-3/4'>
-                            {
-                                isWon &&
-                                <div className="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
-                                    <strong className="font-bold">Success! &nbsp;</strong>
-                                    <span className="block sm:inline">Your Solution is Correct.</span>
-                                    <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
-                                        <svg className="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-                                    </span>
-                                </div>
+                                </button>
                             }
-                            {
-                                isCorrect &&
-                                <div className="bg-blue-100 border  text-blue-700 px-4 py-3 rounded relative" role="alert">
-                                    <strong className="font-bold">Correct! &nbsp;</strong>
-                                    <span className="block sm:inline">You did a good move, keep going.</span>
-                                    <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
-                                        <svg className="fill-current h-6 w-6 text-blue-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-                                    </span>
-                                </div>
-                            }
-                            {
-                                isLost &&
-                                <div className="bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-                                    <strong className="font-bold">Incorrect Solution! &nbsp;</strong>
-                                    <span className="block sm:inline">Try your luck next time.</span>
-                                    <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
-                                        <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-                                    </span>
-                                </div>
-                            }
+                            <p className="text-xs text-gray-500 mt-3">
+                                Form can be submitted after you play the puzzle.
+                            </p>
+                            <div className='mt-4 w-3/4'>
+                                {
+                                    isWon &&
+                                    <div className="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+                                        <strong className="font-bold">Success! &nbsp;</strong>
+                                        <span className="block sm:inline">Your Solution is Correct.</span>
+                                        <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                            <svg className="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                                        </span>
+                                    </div>
+                                }
+                                {
+                                    isCorrect &&
+                                    <div className="bg-blue-100 border  text-blue-700 px-4 py-3 rounded relative" role="alert">
+                                        <strong className="font-bold">Correct! &nbsp;</strong>
+                                        <span className="block sm:inline">You did a good move, keep going.</span>
+                                        <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                            <svg className="fill-current h-6 w-6 text-blue-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                                        </span>
+                                    </div>
+                                }
+                                {
+                                    isLost &&
+                                    <div className="bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                        <strong className="font-bold">Incorrect Solution! &nbsp;</strong>
+                                        <span className="block sm:inline">Try your luck next time.</span>
+                                        <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                            <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                                        </span>
+                                    </div>
+                                }
+                            </div>
                         </div>
+
                     </div>
 
-                </div>
+                </section>
 
-            </section>
-
-        </div>
-    )
+            </div>
+        )
+    }
+    else {
+        return <div>Loading...</div>
+    }
 }
 
 export default Page

@@ -1,6 +1,5 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { BrowserRouter } from 'react-router-dom'
 import Providers from "./Providers";
 
 

@@ -7,21 +7,19 @@ import { useState, useEffect, useContext } from 'react';
 import { UserContext } from './UserContext';
 
 
-const Layout = ({ children }) => {
+const PuzzleSetWrapper = ({ children }) => {
     const { loginStatus } = useContext(UserContext);
-
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    //   const [isLoading, setIsLoading] = useState(false);
-    //   // const { session, status, isAuthenticated } = useAuth();
-    //   const { data: session, status } = useSession()
     const router = useRouter();
-    console.log("Login Status ", loginStatus)
+ 
     useEffect(() => {
+        console.log("Login Status Changed")
         if (loginStatus === 'authenticated') {
             // setIsLoading(false);
             setIsAuthenticated(true);
-            console.log("authenticated")
+            // console.log("authenticated")
         } else if (loginStatus === 'unauthenticated') {
+            console.log("session is unauthenticated")
             setIsAuthenticated(false);
             router.push('/login');
         }
@@ -40,4 +38,4 @@ const Layout = ({ children }) => {
     }
 }
 
-export default Layout
+export default PuzzleSetWrapper

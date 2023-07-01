@@ -90,24 +90,36 @@
 import React from 'react'
 import { useState, useEffect, useContext } from 'react';
 import Link from 'next/link';
-import  Layout  from './puzzleSetWrapper'
 import { UserContext } from './UserContext';
 import { useRouter } from 'next/navigation';
+import PuzzleSetWrapper from './puzzleSetWrapper';
 
 
 
 const PuzzleSets = () => {
 
-    const { userId } = useContext(UserContext);
+    const { userId, loginStatus } = useContext(UserContext);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
+ 
+    useEffect(() => {
+        console.log("Login Status Changed")
+        if (loginStatus === 'authenticated') {
+            // setIsLoading(false);
+            setIsAuthenticated(true);
+            // console.log("authenticated")
+        } else if (loginStatus === 'unauthenticated') {
+            console.log("session is unauthenticated")
+            setIsAuthenticated(false);
+            router.push('/login');
+        }
+    }, [loginStatus]);
 
     const [thisUserId, setThisUserId] = useState("");
     // const { data: session, status } = useSession()
     const [userData, setUserData] = useState(null);
     const [isRetrieved, setIsRetrieved] = useState(false);
-    // console.log(session.user.id)
-    // setUserId(session.user.id)
-    // console.log(session.user.id)
+    
     
     const fetchData = async (e) => {
         console.log("user id: ", userId)
@@ -127,10 +139,8 @@ const PuzzleSets = () => {
 
         }
     }, [userId])
-
+    if (isAuthenticated) {
     return (
-       
-            <Layout>
                 <div>
                     <section className="text-gray-600 body-font min-h-screen">
                         <div className="container px-5 mx-auto">
@@ -274,9 +284,13 @@ const PuzzleSets = () => {
                     </section>
 
                 </div>
-            </Layout>
+          
     
     )
+    }
+    else {
+        return <div>Loading...</div>
+    }
 }
 
 export default PuzzleSets
