@@ -23,7 +23,7 @@ export async function POST(request) {
         const searchEmail = newUser.email;
         // const ifAlready = User.find({email: newUser.email});
         ifAlready = await User.count({ email: searchEmail })
-        console.log("ifAlready: ", ifAlready)
+        // console.log("ifAlready: ", ifAlready)
         if(ifAlready>0){
             console.log("returning");
             return NextResponse.json({ message: "Email already Exist" }, { status: 500 })
@@ -47,7 +47,7 @@ export async function POST(request) {
             serialNo: puzzle.serialNo,
             puzzleId: puzzle._id,
         }));
-         console.log(newUserPuzzle);
+        //  console.log(newUserPuzzle);
         // console.log(UserPuzzle.find());
         await newUser.save();
         // console.log(newUser._id);

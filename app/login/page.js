@@ -1,9 +1,9 @@
-// pages/login.js
 "use client"
 import { useEffect, useState, useRef } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 // import { SignIn } from 'next-auth/client';
 
@@ -15,7 +15,9 @@ export default function Login() {
     // console.log(router);
     // console.log("Router Query: ", router.query);
     const [afterSignup, setAfterSignup] = useState(false);
-
+    const [isError, setIsError] = useState(false);
+    const [errorDescription, setErrorDescription] = useState('Invalid email/password, please try again')
+    const [isLoading, setIsloading] = useState(false);
     useEffect(() => {
 
         if (searchParams.get("signup") == "true") {
@@ -25,8 +27,7 @@ export default function Login() {
             setAfterSignup(false);
         }
     }, [searchParams.get("signup")]);
-    const [isError, setIsError] = useState(false);
-    const [errorDescription, setErrorDescription] = useState('Invalid email/password, please try again')
+
     useEffect(() => {
 
         if (searchParams.get("error")) {
@@ -44,6 +45,7 @@ export default function Login() {
 
     const onSubmit = async () => {
         try {
+            setIsloading(true);
             const result = await signIn("credentials", {
                 username: emailRef.current,
                 password: passwordRef.current,
@@ -51,8 +53,10 @@ export default function Login() {
                 callbackUrl: "http://localhost:3000/",
             });
             setIsError(false);
+            setIsloading(false);
         }
         catch (error) {
+            setIsloading(false)
             setIsError(true);
             return
         }
@@ -138,37 +142,66 @@ export default function Login() {
                                         </label>
                                     </div>
                                     {/* <Link to="/signup"> */}
-                                        <div className="text-sm">
-                                            <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                                Register New Account
-                                            </Link>
-                                        </div>
+                                    <div className="text-sm">
+                                        <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                            Register New Account
+                                        </Link>
+                                    </div>
                                     {/* </Link> */}
                                 </div>
 
                                 <div>
-                                    <button
-                                        onClick={onSubmit}
-                                        type="submit"
-                                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                                            <svg
-                                                className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                                aria-hidden="true"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    d="M2.97 10a7.98 7.98 0 0114.06-5.66l-1.5 1.5A6.96 6.96 0 004.45 10H10v1H4.45a6.96 6.96 0 009.08 3.16l1.5 1.5A7.98 7.98 0 012.97 10zm7.98 5.66l1.5-1.5A6.96 6.96 0 0015.55 10H10v1h5.55a6.96 6.96 0 00-9.08 3.16l-1.5-1.5A7.98 7.98 0 0117.03 10h-1.5a6.48 6.48 0 01-9.19 3.34L3.93 13.9A8.48 8.48 0 0010.45 10h4.08l1.58-1.59A6.48 6.48 0 0115.53 6.66L13.95 5.07A8.48 8.48 0 0010.45 10h-1.5a6.48 6.48 0 019.19-3.34l1.58-1.59A8.48 8.48 0 0010.45 0h-4.08l-1.58 1.59A6.48 6.48 0 014.47 6.34L6.05 7.93A8.48 8.48 0 0010.45 10h1.5z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </span>
-                                        Sign in
-                                    </button>
+                                    { !isLoading &&
+                                        <button
+                                            onClick={onSubmit}
+                                            type="submit"
+                                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        >
+                                            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                                                <svg
+                                                    className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M2.97 10a7.98 7.98 0 0114.06-5.66l-1.5 1.5A6.96 6.96 0 004.45 10H10v1H4.45a6.96 6.96 0 009.08 3.16l1.5 1.5A7.98 7.98 0 012.97 10zm7.98 5.66l1.5-1.5A6.96 6.96 0 0015.55 10H10v1h5.55a6.96 6.96 0 00-9.08 3.16l-1.5-1.5A7.98 7.98 0 0117.03 10h-1.5a6.48 6.48 0 01-9.19 3.34L3.93 13.9A8.48 8.48 0 0010.45 10h4.08l1.58-1.59A6.48 6.48 0 0115.53 6.66L13.95 5.07A8.48 8.48 0 0010.45 10h-1.5a6.48 6.48 0 019.19-3.34l1.58-1.59A8.48 8.48 0 0010.45 0h-4.08l-1.58 1.59A6.48 6.48 0 014.47 6.34L6.05 7.93A8.48 8.48 0 0010.45 10h1.5z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </span>
+                                            Sign in
+                                        </button>
+                                    }
+                                    {
+                                        isLoading &&
+                                        <>
+                                        <button
+                                            type="submit"
+                                            className="pointer-events-none group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-300"
+                                        >
+                                            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                                                <svg
+                                                    className="h-5 w-5 text-indigo-300 group-hover:text-indigo-200"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M2.97 10a7.98 7.98 0 0114.06-5.66l-1.5 1.5A6.96 6.96 0 004.45 10H10v1H4.45a6.96 6.96 0 009.08 3.16l1.5 1.5A7.98 7.98 0 012.97 10zm7.98 5.66l1.5-1.5A6.96 6.96 0 0015.55 10H10v1h5.55a6.96 6.96 0 00-9.08 3.16l-1.5-1.5A7.98 7.98 0 0117.03 10h-1.5a6.48 6.48 0 01-9.19 3.34L3.93 13.9A8.48 8.48 0 0010.45 10h4.08l1.58-1.59A6.48 6.48 0 0115.53 6.66L13.95 5.07A8.48 8.48 0 0010.45 10h-1.5a6.48 6.48 0 019.19-3.34l1.58-1.59A8.48 8.48 0 0010.45 0h-4.08l-1.58 1.59A6.48 6.48 0 014.47 6.34L6.05 7.93A8.48 8.48 0 0010.45 10h1.5z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </span>
+                                            &nbsp;
+                                        <PulseLoader color="rgba(99, 102, 241, 1)" ></PulseLoader>
+                                        </button>
+                                        </>
+                                    }
                                 </div>
                             </div>
                         </div>

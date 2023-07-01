@@ -2,6 +2,9 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import PulseLoader from 'react-spinners/PulseLoader';
+
 
 //import bcrypt from 'bcrypt';
 
@@ -23,17 +26,17 @@ export default function Signup() {
         setIsLoading(true)
         setAlreadyExist(false);
         e.preventDefault();
-        if((fullName == '')||(email =='')||(newPassword=='')){
+        if ((fullName == '') || (email == '') || (newPassword == '')) {
             setAllFilled(false);
             setIsLoading(false);
             return;
         }
-        if(newPassword != verifyPassword){
+        if (newPassword != verifyPassword) {
             setPasswordEqual(false);
             setIsLoading(false)
             return;
         }
-        else{
+        else {
             setPasswordEqual(true);
         }
         const response = await fetch('/api/signup', {
@@ -41,7 +44,7 @@ export default function Signup() {
             header: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({fullName, email, newPassword }),
+            body: JSON.stringify({ fullName, email, newPassword }),
         });
 
         if (response.ok) {
@@ -78,11 +81,11 @@ export default function Signup() {
                                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign Up</h2>
                             </div>
                             <form className="mt-8 " onSubmit={handleSubmit}>
-                            {alreadyExist &&
-                                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100 dark:bg-gray-800 dark:text-red-400" role="alert">
-                                            <span className="font-medium">Signup Failed! user already exist</span>
-                                        </div>
-                                    }
+                                {alreadyExist &&
+                                    <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100 dark:bg-gray-800 dark:text-red-400" role="alert">
+                                        <span className="font-medium">Signup Failed! user already exist</span>
+                                    </div>
+                                }
                                 <input type="hidden" name="remember" value="true" />
                                 <div className="rounded-md shadow-sm">
                                     <div className='my-2'>
@@ -151,27 +154,17 @@ export default function Signup() {
                                     </div >
                                     <div>
                                         {
-                                            !passwordEqual && 
-                                        <p className='text-red-500'>
-                                            Passwords don't match
-                                        </p>
+                                            !passwordEqual &&
+                                            <p className='text-red-500'>
+                                                Passwords don't match
+                                            </p>
                                         }
                                     </div>
-                                    
+
                                 </div>
 
                                 <div className="my-3 flex items-center justify-between">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="remember_me"
-                                            name="remember_me"
-                                            type="checkbox"
-                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">
-                                            Remember me
-                                        </label>
-                                    </div>
+                                    
 
                                     <div className="text-sm">
                                         <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
@@ -181,28 +174,61 @@ export default function Signup() {
                                 </div>
 
                                 <div>
-                                    <button
-                                        disabled={isLoading}
-                                        type="submit"
-                                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                                            <svg
-                                                className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                                aria-hidden="true"
+                                    {!isLoading &&
+                                        <button
+                                            type="submit"
+                                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        >
+                                            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                                                <svg
+                                                    className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M2.97 10a7.98 7.98 0 0114.06-5.66l-1.5 1.5A6.96 6.96 0 004.45 10H10v1H4.45a6.96 6.96 0 009.08 3.16l1.5 1.5A7.98 7.98 0 012.97 10zm7.98 5.66l1.5-1.5A6.96 6.96 0 0015.55 10H10v1h5.55a6.96 6.96 0 00-9.08 3.16l-1.5-1.5A7.98 7.98 0 0117.03 10h-1.5a6.48 6.48 0 01-9.19 3.34L3.93 13.9A8.48 8.48 0 0010.45 10h4.08l1.58-1.59A6.48 6.48 0 0115.53 6.66L13.95 5.07A8.48 8.48 0 0010.45 10h-1.5a6.48 6.48 0 019.19-3.34l1.58-1.59A8.48 8.48 0 0010.45 0h-4.08l-1.58 1.59A6.48 6.48 0 014.47 6.34L6.05 7.93A8.48 8.48 0 0010.45 10h1.5z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </span>
+                                            Sign Up
+                                        </button>
+                                    }{
+                                        isLoading &&
+                                        <>
+                                            <button
+                                                type="submit"
+                                                className="pointer-events-none group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-300"
                                             >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    d="M2.97 10a7.98 7.98 0 0114.06-5.66l-1.5 1.5A6.96 6.96 0 004.45 10H10v1H4.45a6.96 6.96 0 009.08 3.16l1.5 1.5A7.98 7.98 0 012.97 10zm7.98 5.66l1.5-1.5A6.96 6.96 0 0015.55 10H10v1h5.55a6.96 6.96 0 00-9.08 3.16l-1.5-1.5A7.98 7.98 0 0117.03 10h-1.5a6.48 6.48 0 01-9.19 3.34L3.93 13.9A8.48 8.48 0 0010.45 10h4.08l1.58-1.59A6.48 6.48 0 0115.53 6.66L13.95 5.07A8.48 8.48 0 0010.45 10h-1.5a6.48 6.48 0 019.19-3.34l1.58-1.59A8.48 8.48 0 0010.45 0h-4.08l-1.58 1.59A6.48 6.48 0 014.47 6.34L6.05 7.93A8.48 8.48 0 0010.45 10h1.5z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </span>
-                                        Sign Up
-                                    </button>
+                                                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                                                    <svg
+                                                        className="h-5 w-5 text-indigo-300 group-hover:text-indigo-200"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M2.97 10a7.98 7.98 0 0114.06-5.66l-1.5 1.5A6.96 6.96 0 004.45 10H10v1H4.45a6.96 6.96 0 009.08 3.16l1.5 1.5A7.98 7.98 0 012.97 10zm7.98 5.66l1.5-1.5A6.96 6.96 0 0015.55 10H10v1h5.55a6.96 6.96 0 00-9.08 3.16l-1.5-1.5A7.98 7.98 0 0117.03 10h-1.5a6.48 6.48 0 01-9.19 3.34L3.93 13.9A8.48 8.48 0 0010.45 10h4.08l1.58-1.59A6.48 6.48 0 0115.53 6.66L13.95 5.07A8.48 8.48 0 0010.45 10h-1.5a6.48 6.48 0 019.19-3.34l1.58-1.59A8.48 8.48 0 0010.45 0h-4.08l-1.58 1.59A6.48 6.48 0 014.47 6.34L6.05 7.93A8.48 8.48 0 0010.45 10h1.5z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                                &nbsp;
+                                                <PulseLoader color="rgba(99, 102, 241, 1)" ></PulseLoader>
+                                            </button>
+                                        </>
+                                    }
+                                    <div className="text-sm mt-3 text-right">
+                                        Already have an account? &nbsp;
+                                        <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                            Login
+                                        </Link>
+                                    </div>
                                 </div>
                             </form>
                         </div>

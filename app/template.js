@@ -35,8 +35,10 @@ const Template = ({ children }) => {
     <div className='template min-h-screen'>
       <UserProvider>
         <Navbar fullName={fullName} isLoggedIn={isLoggedIn}></Navbar>
+        <main className="flex min-h-screen min-w-full flex-col items-center">
         {/* {userId} */}
         {children}
+        </main>
       </UserProvider>
 
     </div>
