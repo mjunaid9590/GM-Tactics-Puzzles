@@ -1,4 +1,3 @@
-import { MongoClient } from 'mongodb';
 import bcrypt from 'bcrypt';
 import { NextResponse, NextRequest } from 'next/server'
 
@@ -18,7 +17,7 @@ export async function POST(request) {
             email,
             password,
         });
-        // console.log(newUser.email);
+        console.log(newUser.email);
         let ifAlready = 0;
         const searchEmail = newUser.email;
         // const ifAlready = User.find({email: newUser.email});

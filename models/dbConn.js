@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 // Connection string
 const connectionString = process.env.MONGODB_CONNECTION_STRING;
+console.log("connecting Database ");
 
 // Connect to MongoDB
 mongoose.connect(connectionString, {
@@ -11,10 +12,29 @@ mongoose.connect(connectionString, {
 
 // Get the default connection
 const db = mongoose.connection;
-console.log("database string: ", db);
 // Handle connection error
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on("connected", ()=>{
+    console.log("Database Connected");
+})
+
+db.on('connecting', () => { 
+    console.log('connecting')
+    console.log(mongoose.connection.readyState); //logs 2
+  });
+  db.on('connected', () => {
+    console.log('connected');
+    console.log(mongoose.connection.readyState); //logs 1
+  });
+  db.on('disconnecting', () => {
+    console.log('disconnecting');
+    console.log(mongoose.connection.readyState); // logs 3
+  });
+  db.on('disconnected', () => {
+    console.log('disconnected');
+    console.log(mongoose.connection.readyState); //logs 0
+  });
 const userSchema = new mongoose.Schema({
     name: String,
     email: String,

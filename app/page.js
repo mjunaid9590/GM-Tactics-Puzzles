@@ -140,13 +140,14 @@ const PuzzleSets = () => {
         }
     }, [userId])
     if (isAuthenticated) {
+        console.log("userData", userData)
     return (
                 <div>
                     <section className="text-gray-600 body-font min-h-screen">
                         <div className="container px-5 mx-auto">
                             <div className="flex flex-wrap -m-4">
                                 <div className="p-4 md:w-1/4 sm:w-1/2 w-1/2">
-                                    <Link href={`/gameplay?set=1&&isRepeat=${(userData) && (userData[1].attempted >= userData[1].total)}`}>
+                                    <Link href={`/gameplay?set=1&&isRepeat=${userData && (userData[1].attempted >= userData[1].total)}`}>
                                         <div className=" cursor-pointer border-2 border-gray-200 px-6 py-3 rounded-lg bg-gray-300 hover:bg-gray-400">
 
                                             <h2 className="title-font text-3xl text-gray-900">Set 1</h2>
