@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
     //   // const { session, status, isAuthenticated } = useAuth();
     //   const { data: session, status } = useSession()
     const router = useRouter();
-    // console.log("isLoading", isLoading)
+    console.log("Login Status ", loginStatus)
     useEffect(() => {
         if (loginStatus === 'authenticated') {
             // setIsLoading(false);
