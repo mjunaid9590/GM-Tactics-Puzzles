@@ -92,5 +92,5 @@ export default function ChessBoard({fenData, puzzleMoves, onMessage}) {
         }
     }
 
-    return <Chessboard boardWidth={430} position={game.fen()} onPieceDrop={onDrop} />;
+    return <Chessboard position={game.fen()} onPieceDrop={onDrop} />;
 }
