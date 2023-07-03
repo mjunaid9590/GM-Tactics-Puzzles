@@ -275,7 +275,7 @@ const Page = () => {
                                     {/* <ChessboardComponent serialNo={2} set={1} onMessage={handleMessage} /> */}
                                     <div className={`border-gray-300 ${((isLost || isWon) && (!formSubmitted)) ? 'opacity-50 pointer-events-none' : ''}`}>
                                         {(fenData && puzzleMoves) &&
-                                            <ChessBoard fenData={fenData} puzzleMoves={puzzleMoves} onMessage={handleMessage}  />
+                                            <ChessBoard fenData={fenData} puzzleMoves={puzzleMoves} onMessage={handleMessage} key={chessBoardKey} />
                                         }
                                     </div>
                                     {
