@@ -19,6 +19,7 @@ export default function ChessBoard({fenData, puzzleMoves, onMessage}) {
     }, [moveMade])
 
     function makeAMove(move) {
+        // console.log("solution: ",solution)
         try{
 
             const result = game.move(move);
@@ -26,27 +27,32 @@ export default function ChessBoard({fenData, puzzleMoves, onMessage}) {
             setGame((prevGame) => new Chess(prevGame.fen())); // Create a new Chess instance with the updated FEN position
             return result;
         }catch(error){
-            console.error("My Error: ",error);
+            // console.log("My Error: ",error);
         }
     }
 
     function makeRandomMove() {
-        const possibleMoves = game.moves();
-        if (game.isGameOver() || game.isDraw() || possibleMoves.length === 0)
+        // const possibleMoves = game.moves();
+        console.log("solution: ",solution)
+
+        if (game.isGameOver() || game.isDraw() )
             return; // exit if the game is over
         const moveExpected = solution.shift();
-        console.log("Auto Expected Move: ", moveExpected);
-        console.log(solution)
+        // console.log("Auto Expected Move: ", moveExpected);
+        // console.log(solution)
         if(moveExpected){
         const move = makeAMove(moveExpected);
-        console.log("Auto Executed Move: ", move);
+        // console.log("Auto Executed Move: ", move);
         }
 
     }
 
     function onDrop(sourceSquare, targetSquare) {
+        console.log("solution: ",solution)
+
         const moveExpected = solution.shift();
-        console.log("Manual Expected Move: ", moveExpected);
+        // console.log("Manual Expected Move: ", moveExpected);
+        try{
         const move = makeAMove({
             from: sourceSquare,
             to: targetSquare,
@@ -79,9 +85,12 @@ export default function ChessBoard({fenData, puzzleMoves, onMessage}) {
           }
 
         // console.log(moveMade)
-
         return true;
+        }
+        catch(error){
+            // console.log("Drop error")
+        }
     }
 
-    return <Chessboard boardWidth={450} position={game.fen()} onPieceDrop={onDrop} />;
+    return <Chessboard boardWidth={430} position={game.fen()} onPieceDrop={onDrop} />;
 }

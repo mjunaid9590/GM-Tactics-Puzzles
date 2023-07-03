@@ -9,6 +9,7 @@ import { UserContext } from '../UserContext';
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation';
 import PulseLoader from 'react-spinners/PulseLoader';
+import { BsArrowRepeat } from 'react-icons/bs'
 
 
 async function fetchPuzzle(set, serialNo) {
@@ -71,14 +72,24 @@ const Page = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [nextPuzzle, setNextPuzzle] = useState(null);
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [chessBoardKey, setChessBoardKey] = useState(false);
+    const [allPuzzleData, setAllPuzzleData] = useState(null);
+
+    const [q1, setQ1] = useState('');
+    const [q2_1, setQ2_1] = useState('');
+    const [q2_2, setQ2_2] = useState('');
+    const [q3, setQ3] = useState('');
+
+
 
     useEffect(() => {
         setNextPuzzle(true);
     }, [])
-    const Q1Ref = useRef();
-    const Q2_1Ref = useRef();
-    const Q2_2Ref = useRef();
-    const Q3Ref = useRef();
+
+    // const Q1Ref = useRef();
+    // const Q2_1Ref = useRef();
+    // const Q2_2Ref = useRef();
+    // const Q3Ref = useRef();
 
 
 
@@ -115,25 +126,29 @@ const Page = () => {
             fetchUserPuzzle(userId, false, setNo)
                 .then(response => {
                     setUserPuzzleId(response.data._id);
+                    // Q1Ref.current.value = response.data.question_1;
+                    console.log("Response: ", response.data.question_1)
+                    setQ1(response.data.question_1);
+                    setQ2_1(response.data.question_2_1);
+                    setQ2_2(response.data.question_2_2);
+                    setQ3(response.data.question_3);
+
                     console.log(response.data._id);
                     // if(response.data.serialNo)
                     fetchPuzzle(response.data.puzzleSet, response.data.serialNo)
                         .then(puzzleResponse => {
                             if (puzzleResponse) {
-                                // console.log('Dashboard:', response.data);
-                                // setPuzzleData(response.data);
-                                // console.log("Response Data", response.data[0].FEN);
-                                // const chess = new Chess(response.data[0].FEN)
+
                                 setIsLoading(false);
                                 console.log("Loading false")
+                                setAllPuzzleData(puzzleResponse.data)
                                 setFenData(puzzleResponse.data[0].FEN);
                                 setCurrentPlayerFromFEN(puzzleResponse.data[0].FEN)
                                 const moves = puzzleResponse.data[0].Moves;
                                 setPuzzleMoves(moves.split(' '));
                                 setSerialNo(puzzleResponse.data[0].serialNo)
 
-                                // setGame(chess);
-                                // setCurrentPosition(chess.fen());
+
 
 
                             }
@@ -150,7 +165,15 @@ const Page = () => {
         setMoveResult(childMessage); //Value: "correct", "Won", ""Lost"
         console.log(childMessage);
     };
+    const repeatPuzzle = () => {
+        // setFenData(allPuzzleData[0].FEN);
+        // setCurrentPlayerFromFEN(allPuzzleData[0].FEN)
+        // const moves = allPuzzleData[0].Moves;
+        // setPuzzleMoves(moves.split(' '));
 
+        setChessBoardKey(chessBoardKey+1);
+        setMoveResult(null);
+    }
     const puzzleCompleted = async (isWon) => {
         console.log("PuzzleCompleted function")
         const response = await fetch('/api/updateUserPuzzleGame', {
@@ -166,10 +189,10 @@ const Page = () => {
     const formSubmit = async () => {
         setFormSubmitted(true)
         console.log("Form Submit function")
-        const q1Value = Q1Ref.current.value;
-        const q2_1Value = Q2_1Ref.current.value;
-        const q2_2Value = Q2_2Ref.current.value;
-        const q3Value = Q3Ref.current.value;
+        const q1Value = q1;
+        const q2_1Value = q2_1;
+        const q2_2Value = q2_2;
+        const q3Value = q3;
         const response = await fetch('/api/updateUserPuzzleForm', {
             method: 'POST',
             header: {
@@ -215,16 +238,32 @@ const Page = () => {
             setIsLost(false);
         }
     }, [moveResult])
+
+    const handleQ1Change = (e) => {
+        setQ1(e.target.value);
+    };
+    const handleQ2_1Change = (e) => {
+        setQ2_1(e.target.value);
+    };
+
+    const handleQ2_2Change = (e) => {
+        setQ2_2(e.target.value);
+    };
+
+    const handleQ3Change = (e) => {
+        setQ3(e.target.value);
+    };
+
     if (isAuthenticated) {
         return (
             <div>
                 {/* {typeof userId} */}
                 <hr />
                 <section className="text-gray-600 body-font relative">
-                    <div className="container px-5 py-4 mx-auto flex sm:flex-nowrap flex-wrap">
+                    {!isLoading && <div className="container px-5 py-4 mx-auto flex sm:flex-nowrap flex-wrap">
                         <div className=" border-gray-400 flex mx-auto relative">
                             <section className="text-gray-600 body-font">
-                                {!isLoading && <div className="px-auto rounded-lg mt-6 sm:mt-0 lg:px-10">
+                                <div className="px-auto rounded-lg mt-6 sm:mt-0 lg:px-10">
                                     <section className="text-gray-600 body-font">
                                         <div className="container mx-auto flex flex-col">
                                             <h2 className="text-md text-indigo-500 tracking-widest font-medium title-font mb-1">Puzzle No: {serialNo}/1000</h2>
@@ -234,22 +273,22 @@ const Page = () => {
                                         </div>
                                     </section>
                                     {/* <ChessboardComponent serialNo={2} set={1} onMessage={handleMessage} /> */}
-                                    <div className=" border-gray-300">
+                                    <div className={`border-gray-300 ${((isLost || isWon) && (!formSubmitted)) ? 'opacity-50 pointer-events-none' : ''}`}>
                                         {(fenData && puzzleMoves) &&
-                                            <ChessBoard fenData={fenData} puzzleMoves={puzzleMoves} onMessage={handleMessage} />
+                                            <ChessBoard fenData={fenData} puzzleMoves={puzzleMoves} onMessage={handleMessage}  />
                                         }
                                     </div>
-                                </div>}
-                                {
-                                    isLoading &&
-                                    <div className="flex flex-col items-center justify-center">
-                                        <h1 className="text-5xl mt-5">Loading</h1>
-                                        <div className="mt-5">
-                                            <PulseLoader color="rgba(99, 102, 241, 1)" />
-                                        </div>
-                                    </div>
+                                    {
+                                        ((isLost || isWon) && (!formSubmitted)) &&
+                                        <button
+                                            disabled={isLoading} onClick={repeatPuzzle} className="text-white bg-indigo-500 border-0 py-2 px-3 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-sm flex items-center"
+                                        >
+                                            <BsArrowRepeat className="mr-2" />
+                                            <span>Try Again</span>
+                                        </button>
+                                    }
+                                </div>
 
-                                }
                             </section>
 
                         </div>
@@ -271,7 +310,8 @@ const Page = () => {
                                     </p>
                                 </label>
                                 <input
-                                    ref={Q1Ref}
+                                    value={q1}
+                                    onChange={handleQ1Change}
                                     type="text"
                                     id="name"
                                     name="name"
@@ -284,7 +324,8 @@ const Page = () => {
                                         Candatide Move # 1
                                     </label>
                                     <input
-                                        ref={Q2_1Ref}
+                                        value={q2_1}
+                                        onChange={handleQ2_1Change}
                                         type="text"
                                         id="full-name"
                                         name="full-name"
@@ -296,7 +337,8 @@ const Page = () => {
                                         Candatide Move # 2
                                     </label>
                                     <input
-                                        ref={Q2_2Ref}
+                                        value={q2_2}
+                                        onChange={handleQ2_2Change}
                                         type="email"
                                         id="email"
                                         name="email"
@@ -314,7 +356,8 @@ const Page = () => {
                                     </p>
                                 </label>
                                 <input
-                                    ref={Q3Ref}
+                                    value={q3}
+                                    onChange={handleQ3Change}
                                     type="text"
                                     id="name"
                                     name="name"
@@ -323,9 +366,14 @@ const Page = () => {
                             </div>
                             {
                                 ((isLost || isWon) && (!formSubmitted)) &&
-                                <button disabled={isLoading} onClick={formSubmit} className="text-white bg-indigo-500 border-0 py-2 px-6 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                                    Submit & Proceed to Next
-                                </button>
+                                <>
+                                    <button disabled={isLoading} onClick={formSubmit} className="text-white bg-indigo-500 border-0 py-2 px-6 mt-2 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                                        Submit & Proceed to Next
+                                    </button>
+
+
+                                </>
+
                             }
                             {
                                 (!(isLost || isWon) || formSubmitted) &&
@@ -375,7 +423,17 @@ const Page = () => {
                         </div>
 
                     </div>
+                    }
+                    {
+                        isLoading &&
+                        <div className="flex flex-col items-center justify-center">
+                            <h1 className="text-5xl mt-5">Loading</h1>
+                            <div className="mt-5">
+                                <PulseLoader color="rgba(99, 102, 241, 1)" />
+                            </div>
+                        </div>
 
+                    }
                 </section>
 
             </div>
